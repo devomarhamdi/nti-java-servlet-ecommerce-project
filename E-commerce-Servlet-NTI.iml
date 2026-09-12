@@ -21,5 +21,6 @@
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="jakarta.servlet-api-5.0.0" level="project" />
     <orderEntry type="library" name="postgresql-42.7.12" level="project" />
+    <orderEntry type="library" name="jbcrypt-0.4" level="project" />
   </component>
 </module>
