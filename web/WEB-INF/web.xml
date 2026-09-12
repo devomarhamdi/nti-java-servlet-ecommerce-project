@@ -38,6 +38,15 @@
         <url-pattern>/product</url-pattern>
     </servlet-mapping>
 
+    <servlet>
+        <servlet-name>CartServlet</servlet-name>
+        <servlet-class>servlet.CartServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>CartServlet</servlet-name>
+        <url-pattern>/cart</url-pattern>
+    </servlet-mapping>
+
     <!-- HomeServlet owns the "/" url-pattern, which makes it the app's
          default servlet and would otherwise swallow requests for static
          assets. Route those extensions/paths back to Tomcat's built-in
