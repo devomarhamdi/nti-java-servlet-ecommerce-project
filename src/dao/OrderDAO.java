@@ -72,7 +72,7 @@ public class OrderDAO {
         return orders;
     }
 
-    public List<OrderAdminDTO> getAllOrdersToAdmin(Customer customer) throws SQLException {
+    public List<OrderAdminDTO> getAllOrdersToAdmin() throws SQLException {
         List<OrderAdminDTO> orders = new ArrayList<>();
         String query = "SELECT * FROM orders " +
                 "join order_items on order.id = order_items.order_id" +
