@@ -12,8 +12,9 @@ import java.sql.SQLException;
 
 /**
  * Admin category management (FR-31) at /admin/categories.
- * GET lists all categories; POST handles form actions selected by the
- * "action" parameter (create; update/delete added incrementally).
+ * GET lists all categories (optionally with ?edit=id to open the edit form);
+ * POST handles form actions selected by the "action" parameter:
+ * create, update, delete.
  */
 public class CategoryServlet extends HttpServlet {
 
@@ -23,6 +24,14 @@ public class CategoryServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         try {
+            String editId = request.getParameter("edit");
+            if (editId != null) {
+                Category editing = categoryDAO.findById(parseId(editId));
+                if (editing == null) {
+                    request.setAttribute("errorMessage", "The requested category does not exist.");
+                }
+                request.setAttribute("editing", editing);
+            }
             request.setAttribute("categories", categoryDAO.findAll());
             request.getRequestDispatcher("/admin/categories.jsp").forward(request, response);
         } catch (SQLException e) {
@@ -37,14 +46,24 @@ public class CategoryServlet extends HttpServlet {
         try {
             if ("create".equals(action)) {
                 create(request);
+            } else if ("update".equals(action)) {
+                update(request);
+            } else if ("delete".equals(action)) {
+                delete(request);
             } else {
                 request.getSession().setAttribute("flashError", "Unknown category action.");
             }
         } catch (SQLException e) {
-            // Postgres 23505 = unique_violation on categories.name
-            String msg = "23505".equals(e.getSQLState())
-                    ? "A category with that name already exists."
-                    : "Could not save the category. Please try again.";
+            // Postgres SQLSTATE: 23505 = unique_violation on categories.name,
+            // 23503 = foreign_key_violation (products still reference it).
+            String msg;
+            if ("23505".equals(e.getSQLState())) {
+                msg = "A category with that name already exists.";
+            } else if ("23503".equals(e.getSQLState())) {
+                msg = "Cannot delete a category that still has products.";
+            } else {
+                msg = "Could not save the category. Please try again.";
+            }
             request.getSession().setAttribute("flashError", msg);
         }
         // Redirect after POST so a browser refresh does not resubmit the form.
@@ -59,6 +78,37 @@ public class CategoryServlet extends HttpServlet {
         categoryDAO.insert(category);
         request.getSession().setAttribute("flashSuccess",
                 "Category \"" + category.getName() + "\" created.");
+    }
+
+    private void update(HttpServletRequest request) throws SQLException {
+        Category category = readForm(request);
+        if (category == null) {
+            return;
+        }
+        category.setId(parseId(request.getParameter("id")));
+        if (categoryDAO.update(category)) {
+            request.getSession().setAttribute("flashSuccess",
+                    "Category \"" + category.getName() + "\" updated.");
+        } else {
+            request.getSession().setAttribute("flashError", "The requested category does not exist.");
+        }
+    }
+
+    private void delete(HttpServletRequest request) throws SQLException {
+        if (categoryDAO.delete(parseId(request.getParameter("id")))) {
+            request.getSession().setAttribute("flashSuccess", "Category deleted.");
+        } else {
+            request.getSession().setAttribute("flashError", "The requested category does not exist.");
+        }
+    }
+
+    /** Returns -1 for a missing or non-numeric id; no row ever has that id. */
+    private static int parseId(String raw) {
+        try {
+            return Integer.parseInt(raw);
+        } catch (NumberFormatException e) {
+            return -1;
+        }
     }
 
     /**

@@ -39,6 +39,37 @@ public class CategoryDAO {
         }
     }
 
+    public Category findById(int id) throws SQLException {
+        String sql = "SELECT id, name, description FROM categories WHERE id = ?";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, id);
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next() ? mapRow(rs) : null;
+            }
+        }
+    }
+
+    public boolean update(Category category) throws SQLException {
+        String sql = "UPDATE categories SET name = ?, description = ? WHERE id = ?";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, category.getName());
+            ps.setString(2, category.getDescription());
+            ps.setInt(3, category.getId());
+            return ps.executeUpdate() > 0;
+        }
+    }
+
+    public boolean delete(int id) throws SQLException {
+        String sql = "DELETE FROM categories WHERE id = ?";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, id);
+            return ps.executeUpdate() > 0;
+        }
+    }
+
     private Category mapRow(ResultSet rs) throws SQLException {
         Category category = new Category();
         category.setId(rs.getInt("id"));
