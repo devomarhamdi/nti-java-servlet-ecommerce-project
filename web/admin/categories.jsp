@@ -10,6 +10,18 @@
     <a class="back-link" href="<%= request.getContextPath() %>/admin/dashboard.jsp">&larr; Dashboard</a>
 </section>
 
+<form class="admin-form" action="<%= request.getContextPath() %>/admin/categories" method="post">
+    <input type="hidden" name="action" value="create">
+    <h2>Add Category</h2>
+    <label for="name">Name</label>
+    <input type="text" id="name" name="name" required maxlength="100">
+    <label for="description">Description</label>
+    <textarea id="description" name="description" maxlength="255"></textarea>
+    <div class="form-actions">
+        <button type="submit" class="btn btn-primary">Create</button>
+    </div>
+</form>
+
 <%
     List<Category> categories = (List<Category>) request.getAttribute("categories");
 %>
