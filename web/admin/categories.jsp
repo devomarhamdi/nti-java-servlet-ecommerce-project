@@ -12,8 +12,8 @@
 
 <%
     // When ?edit=id is present the same form switches to "update" mode.
+    // ("ctx" is already declared by the statically included header.jsp.)
     Category editing = (Category) request.getAttribute("editing");
-    String ctx = request.getContextPath();
 %>
 <form class="admin-form" action="<%= ctx %>/admin/categories" method="post">
     <% if (editing != null) { %>
