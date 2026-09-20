@@ -18,7 +18,7 @@
     <a class="back-link" href="<%= ctx %>/admin/products">&larr; Products</a>
 </section>
 
-<form class="admin-form" action="<%= ctx %>/admin/products" method="post">
+<form class="admin-form" action="<%= ctx %>/admin/products" method="post" enctype="multipart/form-data">
     <input type="hidden" name="action" value="<%= editing ? "update" : "create" %>">
     <% if (editing) { %>
     <input type="hidden" name="id" value="<%= product.getId() %>">
@@ -49,6 +49,14 @@
         </option>
         <% } %>
     </select>
+
+    <label for="image">Image</label>
+    <% if (editing && product.getImage() != null) { %>
+    <img class="admin-thumb" src="<%= ctx %>/images/products/<%= product.getImage() %>" alt="Current image"
+         onerror="this.onerror=null;this.src='<%= ctx %>/images/placeholder.svg';">
+    <small>Leave empty to keep the current image.</small>
+    <% } %>
+    <input type="file" id="image" name="image" accept="image/*">
 
     <div class="form-actions">
         <button type="submit" class="btn btn-primary"><%= editing ? "Save" : "Create" %></button>

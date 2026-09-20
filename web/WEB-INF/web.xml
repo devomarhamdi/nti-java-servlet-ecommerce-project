@@ -28,6 +28,12 @@
     <servlet>
         <servlet-name>AdminProductServlet</servlet-name>
         <servlet-class>servlet.AdminProductServlet</servlet-class>
+        <!-- Required for request.getPart(): product image upload, 2 MB max. -->
+        <multipart-config>
+            <max-file-size>2097152</max-file-size>
+            <max-request-size>3145728</max-request-size>
+            <file-size-threshold>0</file-size-threshold>
+        </multipart-config>
     </servlet>
     <servlet-mapping>
         <servlet-name>AdminProductServlet</servlet-name>

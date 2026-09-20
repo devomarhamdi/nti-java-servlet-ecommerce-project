@@ -6,12 +6,20 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.Part;
 import model.Product;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.math.BigDecimal;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Set;
+import java.util.UUID;
 
 /**
  * Admin product management (FR-28..FR-30) at /admin/products.
@@ -20,8 +28,15 @@ import java.util.List;
  * GET lists products with optional ?keyword= search; GET ?action=new shows
  * the create form and ?action=edit&id= the edit form. POST actions are
  * selected by the "action" parameter: create, update, delete, stock.
+ * <p>
+ * Product images are uploaded as multipart form data (see the
+ * multipart-config for this servlet in web.xml), stored on disk under
+ * /images/products/, and only the generated file name is kept in the DB.
  */
 public class AdminProductServlet extends HttpServlet {
+
+    private static final String IMAGE_DIR = "/images/products";
+    private static final Set<String> ALLOWED_EXTENSIONS = Set.of("jpg", "jpeg", "png", "gif", "webp");
 
     private final ProductDAO productDAO = new ProductDAO();
     private final CategoryDAO categoryDAO = new CategoryDAO();
@@ -87,6 +102,12 @@ public class AdminProductServlet extends HttpServlet {
             showForm(request, response, product);
             return;
         }
+        String imageError = storeImage(request, product);
+        if (imageError != null) {
+            request.setAttribute("errorMessage", imageError);
+            showForm(request, response, product);
+            return;
+        }
         productDAO.insert(product);
         request.getSession().setAttribute("flashSuccess",
                 "Product \"" + product.getName() + "\" created.");
@@ -110,6 +131,12 @@ public class AdminProductServlet extends HttpServlet {
             showForm(request, response, existing);
             return;
         }
+        String imageError = storeImage(request, existing);
+        if (imageError != null) {
+            request.setAttribute("errorMessage", imageError);
+            showForm(request, response, existing);
+            return;
+        }
         productDAO.update(existing);
         request.getSession().setAttribute("flashSuccess",
                 "Product \"" + existing.getName() + "\" updated.");
@@ -124,6 +151,41 @@ public class AdminProductServlet extends HttpServlet {
             request.getSession().setAttribute("flashError", "The requested product does not exist.");
         }
         response.sendRedirect(request.getContextPath() + "/admin/products");
+    }
+
+    /**
+     * Saves the uploaded "image" part (if any) to disk and sets the generated
+     * file name on the product. When no file was chosen the product's current
+     * image is left untouched. Returns an error message or null.
+     */
+    private String storeImage(HttpServletRequest request, Product product)
+            throws IOException, ServletException {
+        Part part = request.getPart("image");
+        if (part == null || part.getSize() == 0) {
+            return null;
+        }
+        String extension = extensionOf(part.getSubmittedFileName());
+        if (extension == null || !ALLOWED_EXTENSIONS.contains(extension)) {
+            return "Image must be a JPG, PNG, GIF or WebP file.";
+        }
+        // Never trust the client's file name: generate our own so it cannot
+        // contain path segments and cannot collide with another upload.
+        String fileName = UUID.randomUUID() + "." + extension;
+        Path dir = Paths.get(getServletContext().getRealPath(IMAGE_DIR));
+        Files.createDirectories(dir);
+        try (InputStream in = part.getInputStream()) {
+            Files.copy(in, dir.resolve(fileName), StandardCopyOption.REPLACE_EXISTING);
+        }
+        product.setImage(fileName);
+        return null;
+    }
+
+    private static String extensionOf(String submittedName) {
+        if (submittedName == null) {
+            return null;
+        }
+        int dot = submittedName.lastIndexOf('.');
+        return dot < 0 ? null : submittedName.substring(dot + 1).toLowerCase();
     }
 
     /** FR-30: quick stock change from the list page without opening the form. */
