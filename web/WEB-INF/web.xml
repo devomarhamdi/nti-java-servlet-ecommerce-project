@@ -15,4 +15,53 @@
         <url-pattern>/test</url-pattern>
     </servlet-mapping>
 
+    <!-- Slice 3 (Omar) - Product catalog + home page -->
+    <servlet>
+        <servlet-name>HomeServlet</servlet-name>
+        <servlet-class>servlet.HomeServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>HomeServlet</servlet-name>
+        <url-pattern>/</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>ProductServlet</servlet-name>
+        <servlet-class>servlet.ProductServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>ProductServlet</servlet-name>
+        <url-pattern>/products</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>ProductServlet</servlet-name>
+        <url-pattern>/product</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>CartServlet</servlet-name>
+        <servlet-class>servlet.CartServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>CartServlet</servlet-name>
+        <url-pattern>/cart</url-pattern>
+    </servlet-mapping>
+
+    <!-- HomeServlet owns the "/" url-pattern, which makes it the app's
+         default servlet and would otherwise swallow requests for static
+         assets. Route those extensions/paths back to Tomcat's built-in
+         "default" servlet instead. -->
+    <servlet-mapping>
+        <servlet-name>default</servlet-name>
+        <url-pattern>*.css</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>default</servlet-name>
+        <url-pattern>*.js</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>default</servlet-name>
+        <url-pattern>/images/*</url-pattern>
+    </servlet-mapping>
+
 </web-app>
