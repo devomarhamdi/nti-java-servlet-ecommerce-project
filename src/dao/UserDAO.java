@@ -7,64 +7,83 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Timestamp;
 
-public class UserDAO{
+public class UserDAO {
 
-    public record LoginRow(User user, String passwordHash){ }
+    public static class LoginRow {
 
-    private static final String COLUMNS = "id, username, email, role, created_at";
+        private final User user;
+        private final String passwordHash;
 
-    public LoginRow findForLogin(Connection conn, String usernameOrEmail) throws SQLException {
+        public LoginRow(User user, String passwordHash) {
+            this.user = user;
+            this.passwordHash = passwordHash;
+        }
 
-            String sql = "SELECT " + COLUMNS + ", password FROM users " + "WHERE username = ? OR LOWER(email) = LOWER(?)";
-
-            try(PreparedStatement ps = conn.prepareStatement(sql)){
-                ps.setString(1, usernameOrEmail.toLowerCase());
-                ps.setString(2, usernameOrEmail.toLowerCase());
-
-                try(ResultSet rs = ps.executeQuery()){
-                    if(rs.next()){
-                        return null;
-                    }
-                    return new LoginRow(map(rs), rs.getString("password"));
-                }
-            }
+        public User getUser() { return user; }
+        public String getPasswordHash() { return passwordHash; }
     }
 
-    private boolean exists(Connection conn, String sql, String value) throws SQLException {
-        try(PreparedStatement ps = conn.prepareStatement(sql)){
-            ps.setString(1, value);
-            try(ResultSet rs = ps.executeQuery()){
-                return (rs.next());
+
+    public LoginRow findForLogin(Connection conn, String usernameOrEmail)
+            throws SQLException {
+
+        String sql =
+                "SELECT u.id, u.username, u.role, u.password " +
+                        "FROM users u " +
+                        "LEFT JOIN customers c ON c.user_id = u.id " +
+                        "WHERE u.username = ? OR LOWER(c.email) = LOWER(?)";
+
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, usernameOrEmail);
+            ps.setString(2, usernameOrEmail);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                if (!rs.next()) {
+                    return null;                 // no such user
+                }
+                return new LoginRow(map(rs), rs.getString("password"));
             }
         }
     }
 
     public boolean usernameExists(Connection conn, String username) throws SQLException {
-        return exists(conn, "select 1 from users where username = ?", username);
-    }
 
-    public boolean emailExists(Connection conn, String email) throws SQLException {
-        return exists(conn, "select 1 from users where lower(email) = lower(?)", email);
+        String sql = "SELECT 1 FROM users WHERE username = ?";
+
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, username);
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next();                // any row at all = taken
+            }
+        }
     }
 
     public int insert(Connection conn, User user, String passwordHash) throws SQLException {
 
-        String sql = "INSERT INTO users (username, email, password, role) "
-                + "VALUES (?, ?, ?, ?::user_role) RETURNING id";
+        String sql = "INSERT INTO users (username, password, role) "
+                + "VALUES (?, ?, ?) RETURNING id";
 
-        try(PreparedStatement ps = conn.prepareStatement(sql)){
-            ps.setString(1, user.getUsername().toLowerCase());
-            ps.setString(2, user.getEmail().toLowerCase());
-            ps.setString(3, passwordHash);
-            ps.setString(4, user.getRole().name());
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, user.getUsername());
+            ps.setString(2, passwordHash);
+            ps.setString(3, user.getRole().name().toLowerCase());   // "customer"
 
-            try(ResultSet rs = ps.executeQuery()){
+            try (ResultSet rs = ps.executeQuery()) {
                 rs.next();
                 return rs.getInt("id");
             }
         }
     }
 
+
+    /** The ONE place that knows how a users row becomes a User object. */
+    static User map(ResultSet rs) throws SQLException {
+        return new User(
+                rs.getInt("id"),
+                rs.getString("username"),
+                // "customer" in the database → Role.CUSTOMER in Java
+                Role.valueOf(rs.getString("role").toUpperCase())
+        );
+    }
 }
