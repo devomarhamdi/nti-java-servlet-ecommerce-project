@@ -12,6 +12,7 @@
                value="<%= request.getAttribute("keyword") != null ? request.getAttribute("keyword") : "" %>">
         <button type="submit" class="btn">Search</button>
     </form>
+    <a class="btn btn-primary" href="<%= ctx %>/admin/products?action=new">+ New Product</a>
     <a class="back-link" href="<%= ctx %>/admin/dashboard.jsp">&larr; Dashboard</a>
 </section>
 
