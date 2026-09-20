@@ -327,3 +327,81 @@ a {
         grid-template-columns: 1fr;
     }
 }
+
+/* Admin tables and forms (Slice 2) */
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    margin-bottom: 24px;
+}
+
+.data-table th,
+.data-table td {
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--color-border);
+    text-align: left;
+    vertical-align: middle;
+}
+
+.data-table th {
+    background: var(--color-bg);
+    font-weight: 600;
+}
+
+.data-table .actions {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.data-table .actions form {
+    display: inline;
+}
+
+.btn-danger {
+    background: var(--color-danger);
+}
+
+.btn-small {
+    padding: 6px 10px;
+    font-size: 0.85rem;
+}
+
+.admin-form {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    padding: 20px;
+    max-width: 560px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.admin-form label {
+    font-weight: 600;
+}
+
+.admin-form input[type="text"],
+.admin-form input[type="number"],
+.admin-form select,
+.admin-form textarea {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    font: inherit;
+}
+
+.admin-form textarea {
+    min-height: 90px;
+    resize: vertical;
+}
+
+.form-actions {
+    display: flex;
+    gap: 8px;
+}

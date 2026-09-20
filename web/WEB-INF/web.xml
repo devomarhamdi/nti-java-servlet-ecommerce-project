@@ -15,6 +15,16 @@
         <url-pattern>/test</url-pattern>
     </servlet-mapping>
 
+    <!-- Slice 2 (Hazem) - Categories + admin product management -->
+    <servlet>
+        <servlet-name>CategoryServlet</servlet-name>
+        <servlet-class>servlet.CategoryServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>CategoryServlet</servlet-name>
+        <url-pattern>/admin/categories</url-pattern>
+    </servlet-mapping>
+
     <!-- Slice 3 (Omar) - Product catalog + home page -->
     <servlet>
         <servlet-name>HomeServlet</servlet-name>

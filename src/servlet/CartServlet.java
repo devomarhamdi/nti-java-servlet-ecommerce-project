@@ -48,8 +48,7 @@ public class CartServlet extends HttpServlet {
         response.sendRedirect(request.getContextPath() + "/cart");
     }
 
-    private void addToCart(HttpServletRequest request, Cart cart)
-            throws SQLException {
+    private void addToCart(HttpServletRequest request, Cart cart) throws SQLException {
         int productId = Integer.parseInt(request.getParameter("productId"));
         int quantity = Integer.parseInt(request.getParameter("quantity"));
         Product product = productDAO.findById(productId);
