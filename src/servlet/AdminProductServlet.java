@@ -19,7 +19,7 @@ import java.util.List;
  * coordinates forms, validation and messages.
  * GET lists products with optional ?keyword= search; GET ?action=new shows
  * the create form and ?action=edit&id= the edit form. POST actions are
- * selected by the "action" parameter: create, update, delete.
+ * selected by the "action" parameter: create, update, delete, stock.
  */
 public class AdminProductServlet extends HttpServlet {
 
@@ -60,6 +60,8 @@ public class AdminProductServlet extends HttpServlet {
                 update(request, response);
             } else if ("delete".equals(action)) {
                 delete(request, response);
+            } else if ("stock".equals(action)) {
+                updateStock(request, response);
             } else {
                 request.getSession().setAttribute("flashError", "Unknown product action.");
                 response.sendRedirect(request.getContextPath() + "/admin/products");
@@ -118,6 +120,26 @@ public class AdminProductServlet extends HttpServlet {
             throws IOException, SQLException {
         if (productDAO.delete(parseId(request.getParameter("id")))) {
             request.getSession().setAttribute("flashSuccess", "Product deleted.");
+        } else {
+            request.getSession().setAttribute("flashError", "The requested product does not exist.");
+        }
+        response.sendRedirect(request.getContextPath() + "/admin/products");
+    }
+
+    /** FR-30: quick stock change from the list page without opening the form. */
+    private void updateStock(HttpServletRequest request, HttpServletResponse response)
+            throws IOException, SQLException {
+        int id = parseId(request.getParameter("id"));
+        int stock;
+        try {
+            stock = Integer.parseInt(request.getParameter("stock").trim());
+        } catch (NumberFormatException | NullPointerException e) {
+            stock = -1;
+        }
+        if (stock < 0) {
+            request.getSession().setAttribute("flashError", "Stock must be a whole number of 0 or more.");
+        } else if (productDAO.updateStock(id, stock)) {
+            request.getSession().setAttribute("flashSuccess", "Stock updated.");
         } else {
             request.getSession().setAttribute("flashError", "The requested product does not exist.");
         }

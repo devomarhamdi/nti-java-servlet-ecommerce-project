@@ -47,7 +47,14 @@
         <td><%= product.getName() %></td>
         <td><%= product.getCategoryName() %></td>
         <td>$<%= product.getPrice() %></td>
-        <td class="<%= product.getStock() == 0 ? "out-of-stock" : "" %>"><%= product.getStock() %></td>
+        <td class="<%= product.getStock() == 0 ? "out-of-stock" : "" %>">
+            <form class="stock-form" action="<%= ctx %>/admin/products" method="post">
+                <input type="hidden" name="action" value="stock">
+                <input type="hidden" name="id" value="<%= product.getId() %>">
+                <input type="number" name="stock" min="0" step="1" value="<%= product.getStock() %>">
+                <button type="submit" class="btn btn-small">Set</button>
+            </form>
+        </td>
         <td class="actions">
             <a class="btn btn-small" href="<%= ctx %>/admin/products?action=edit&id=<%= product.getId() %>">Edit</a>
             <form action="<%= ctx %>/admin/products" method="post"

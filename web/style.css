@@ -413,3 +413,16 @@ a {
     border-radius: var(--radius);
     border: 1px solid var(--color-border);
 }
+
+.stock-form {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+}
+
+.stock-form input[type="number"] {
+    width: 70px;
+    padding: 6px 8px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+}
