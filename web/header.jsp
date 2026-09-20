@@ -6,7 +6,7 @@
     if (pageTitle == null) {
         pageTitle = "ShopEasy";
     }
-    String ctx = request.getContextPath();
+    String ctx1 = request.getContextPath();
     Object loggedInUser = session.getAttribute("user");
 %>
 <!DOCTYPE html>
@@ -15,24 +15,26 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><%= pageTitle %></title>
-    <link rel="stylesheet" href="<%= ctx %>/style.css">
+    <link rel="stylesheet" href="<%= ctx1 %>/style.css">
 </head>
 <body>
 <header class="site-header">
     <div class="container header-inner">
-        <a class="brand" href="<%= ctx %>/">ShopEasy</a>
+        <a class="brand" href="<%= ctx1 %>/">ShopEasy</a>
         <nav class="main-nav">
-            <a href="<%= ctx %>/">Home</a>
-            <a href="<%= ctx %>/products">Products</a>
-            <a href="<%= ctx %>/cart">Cart</a>
+            <a href="<%= ctx1 %>/">Home</a>
+            <a href="<%= ctx1 %>/products">Products</a>
+            <a href="<%= ctx1 %>/cart">Cart</a>
             <% if (loggedInUser != null) { %>
-                <a href="<%= ctx %>/orders">My Orders</a>
-                <a href="<%= ctx %>/logout">Logout</a>
+                <a href="<%= ctx1 %>/orders">My Orders</a>
+                <a href="<%= ctx1 %>/logout">Logout</a>
             <% } else { %>
-                <a href="<%= ctx %>/login.jsp">Login</a>
-                <a href="<%= ctx %>/register.jsp">Register</a>
+                <a href="<%= ctx1 %>/login.jsp">Login</a>
+                <a href="<%= ctx1 %>/register.jsp">Register</a>
             <% } %>
         </nav>
     </div>
 </header>
 <main class="container page-content">
+
+</main>
