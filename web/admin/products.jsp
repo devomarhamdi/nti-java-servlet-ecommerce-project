@@ -31,6 +31,7 @@
         <th>Category</th>
         <th>Price</th>
         <th>Stock</th>
+        <th>Actions</th>
     </tr>
     </thead>
     <tbody>
@@ -47,6 +48,15 @@
         <td><%= product.getCategoryName() %></td>
         <td>$<%= product.getPrice() %></td>
         <td class="<%= product.getStock() == 0 ? "out-of-stock" : "" %>"><%= product.getStock() %></td>
+        <td class="actions">
+            <a class="btn btn-small" href="<%= ctx %>/admin/products?action=edit&id=<%= product.getId() %>">Edit</a>
+            <form action="<%= ctx %>/admin/products" method="post"
+                  onsubmit="return confirm('Delete product &quot;<%= product.getName() %>&quot;?');">
+                <input type="hidden" name="action" value="delete">
+                <input type="hidden" name="id" value="<%= product.getId() %>">
+                <button type="submit" class="btn btn-small btn-danger">Delete</button>
+            </form>
+        </td>
     </tr>
     <% } %>
     </tbody>

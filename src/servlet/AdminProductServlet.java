@@ -18,7 +18,8 @@ import java.util.List;
  * All product SQL goes through ProductDAO (Slice 3); this servlet only
  * coordinates forms, validation and messages.
  * GET lists products with optional ?keyword= search; GET ?action=new shows
- * the create form. POST actions are selected by the "action" parameter.
+ * the create form and ?action=edit&id= the edit form. POST actions are
+ * selected by the "action" parameter: create, update, delete.
  */
 public class AdminProductServlet extends HttpServlet {
 
@@ -29,8 +30,17 @@ public class AdminProductServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         try {
-            if ("new".equals(request.getParameter("action"))) {
+            String action = request.getParameter("action");
+            if ("new".equals(action)) {
                 showForm(request, response, null);
+            } else if ("edit".equals(action)) {
+                Product product = productDAO.findById(parseId(request.getParameter("id")));
+                if (product == null) {
+                    request.getSession().setAttribute("flashError", "The requested product does not exist.");
+                    response.sendRedirect(request.getContextPath() + "/admin/products");
+                    return;
+                }
+                showForm(request, response, product);
             } else {
                 showList(request, response);
             }
@@ -46,13 +56,20 @@ public class AdminProductServlet extends HttpServlet {
         try {
             if ("create".equals(action)) {
                 create(request, response);
+            } else if ("update".equals(action)) {
+                update(request, response);
+            } else if ("delete".equals(action)) {
+                delete(request, response);
             } else {
                 request.getSession().setAttribute("flashError", "Unknown product action.");
                 response.sendRedirect(request.getContextPath() + "/admin/products");
             }
         } catch (SQLException e) {
-            request.getSession().setAttribute("flashError",
-                    "Could not save the product. Please try again.");
+            // Postgres 23503 = foreign_key_violation: order_items still reference it.
+            String msg = "23503".equals(e.getSQLState())
+                    ? "Cannot delete a product that appears in existing orders."
+                    : "Could not save the product. Please try again.";
+            request.getSession().setAttribute("flashError", msg);
             response.sendRedirect(request.getContextPath() + "/admin/products");
         }
     }
@@ -72,6 +89,48 @@ public class AdminProductServlet extends HttpServlet {
         request.getSession().setAttribute("flashSuccess",
                 "Product \"" + product.getName() + "\" created.");
         response.sendRedirect(request.getContextPath() + "/admin/products");
+    }
+
+    private void update(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException, SQLException {
+        int id = parseId(request.getParameter("id"));
+        Product existing = productDAO.findById(id);
+        if (existing == null) {
+            request.getSession().setAttribute("flashError", "The requested product does not exist.");
+            response.sendRedirect(request.getContextPath() + "/admin/products");
+            return;
+        }
+        // Start from the stored row so fields the form does not send (image)
+        // are preserved by ProductDAO.update, which writes every column.
+        String error = readForm(request, existing);
+        if (error != null) {
+            request.setAttribute("errorMessage", error);
+            showForm(request, response, existing);
+            return;
+        }
+        productDAO.update(existing);
+        request.getSession().setAttribute("flashSuccess",
+                "Product \"" + existing.getName() + "\" updated.");
+        response.sendRedirect(request.getContextPath() + "/admin/products");
+    }
+
+    private void delete(HttpServletRequest request, HttpServletResponse response)
+            throws IOException, SQLException {
+        if (productDAO.delete(parseId(request.getParameter("id")))) {
+            request.getSession().setAttribute("flashSuccess", "Product deleted.");
+        } else {
+            request.getSession().setAttribute("flashError", "The requested product does not exist.");
+        }
+        response.sendRedirect(request.getContextPath() + "/admin/products");
+    }
+
+    /** Returns -1 for a missing or non-numeric id; no row ever has that id. */
+    private static int parseId(String raw) {
+        try {
+            return Integer.parseInt(raw);
+        } catch (NumberFormatException e) {
+            return -1;
+        }
     }
 
     /** Loads the category list (for the dropdown) and forwards to the form. */
