@@ -25,6 +25,15 @@
         <url-pattern>/admin/categories</url-pattern>
     </servlet-mapping>
 
+    <servlet>
+        <servlet-name>AdminProductServlet</servlet-name>
+        <servlet-class>servlet.AdminProductServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>AdminProductServlet</servlet-name>
+        <url-pattern>/admin/products</url-pattern>
+    </servlet-mapping>
+
     <!-- Slice 3 (Omar) - Product catalog + home page -->
     <servlet>
         <servlet-name>HomeServlet</servlet-name>
