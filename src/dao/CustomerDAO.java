@@ -16,7 +16,7 @@ public class CustomerDAO {
     private static final String SELECT_BASE = "select c.id, c.name, c.email, c.phone, c.address, c.registration_data, " +
     "   u.id as uid, u.username, u.role " + "FROM customers c " + "JOIN users ON u.is = c.user_id ";
 
-    private boolean emailExists(Connection conn, String email) throws SQLException {
+    public boolean emailExists(Connection conn, String email) throws SQLException {
 
         String sql = "select 1 from customers where lower(email) = lower(?)";
         try (PreparedStatement ps = conn.prepareStatement(sql)){
