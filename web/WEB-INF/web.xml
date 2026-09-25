@@ -53,6 +53,31 @@
         <url-pattern>/admin/customers</url-pattern>
     </servlet-mapping>
 
+    <!-- Slice 2 (Hazem) - Categories + admin product management -->
+    <servlet>
+        <servlet-name>CategoryServlet</servlet-name>
+        <servlet-class>servlet.CategoryServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>CategoryServlet</servlet-name>
+        <url-pattern>/admin/categories</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>AdminProductServlet</servlet-name>
+        <servlet-class>servlet.AdminProductServlet</servlet-class>
+        <!-- Required for request.getPart(): product image upload, 2 MB max. -->
+        <multipart-config>
+            <max-file-size>2097152</max-file-size>
+            <max-request-size>3145728</max-request-size>
+            <file-size-threshold>0</file-size-threshold>
+        </multipart-config>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>AdminProductServlet</servlet-name>
+        <url-pattern>/admin/products</url-pattern>
+    </servlet-mapping>
+
     <!-- Slice 3 (Omar) - Product catalog + home page -->
     <servlet>
         <servlet-name>HomeServlet</servlet-name>
@@ -83,6 +108,29 @@
     <servlet-mapping>
         <servlet-name>CartServlet</servlet-name>
         <url-pattern>/cart</url-pattern>
+    </servlet-mapping>
+
+    <!-- Slice 4 - Checkout + order history -->
+    <servlet>
+        <servlet-name>CheckoutServlet</servlet-name>
+        <servlet-class>servlet.CheckoutServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>CheckoutServlet</servlet-name>
+        <url-pattern>/checkout</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>OrderServlet</servlet-name>
+        <servlet-class>servlet.OrderServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>OrderServlet</servlet-name>
+        <url-pattern>/orders</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>OrderServlet</servlet-name>
+        <url-pattern>/order</url-pattern>
     </servlet-mapping>
 
     <!-- HomeServlet owns the "/" url-pattern, which makes it the app's
