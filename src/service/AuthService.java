@@ -24,7 +24,7 @@ public class AuthService {
             conn.setAutoCommit(false);
             try{
                 if(userDAO.usernameExists(conn, username)){
-                    throw new DuplicateUserException("username", "this uername is already taken");
+                    throw new DuplicateUserException("username", "this username is already taken");
                 }
                 if(customerDAO.emailExists(conn, email)){
                     throw new DuplicateUserException("email", "this email is already taken");
