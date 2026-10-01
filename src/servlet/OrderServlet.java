@@ -37,7 +37,7 @@ public class OrderServlet extends HttpServlet {
                 showHistory(request, response, customerId);
             }
         } catch (SQLException e) {
-            throw new ServletException("Database error while loading orders", e);
+            //throw new ServletException("Database error while loading orders", e);
         }
     }
 
@@ -57,6 +57,7 @@ public class OrderServlet extends HttpServlet {
                 order = orderDAO.findByIdWithItems(Integer.parseInt(idParam), customerId);
             } catch (NumberFormatException ignored) {
                 // falls through to the "not found" handling below
+                
             }
         }
 
